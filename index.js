@@ -11,7 +11,10 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(express.static('Rooms'));
 app.use(fileUpload());
-
+// app.all('*', (req, res, next) => {
+//     res.header("Access-Control-Allow-Origin", "https://localhost:3000");
+//     next();
+// });
 const port = 5000;
 const uri = "mongodb+srv://Hasanul-Banna:NFOFHvx2U4wJMIwl@cluster0.jsi4a.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -26,6 +29,10 @@ client.connect(err => {
         bookingCollection.insertOne(newBooking).then(res => '');
         // res.send('done')
     })
+    app.post('/makeAdmin', (req, res) => {
+        const email = req.body;
+        AdminCollection.insertOne(email).then(res => '');
+    })
     app.get('/bookings', (req, res) => {
         bookingCollection.find({}).toArray((err, documents) => res.send(documents))
     })
@@ -34,10 +41,6 @@ client.connect(err => {
     })
     app.get('/HotelData', (req, res) => {
         roomsCollection.find({}).toArray((err, documents) => res.send(documents))
-    })
-    app.post('/makeAdmin', (req, res) => {
-        const email = req.body;
-        AdminCollection.insertOne(email).then(res => '');
     })
     app.post('/isAdmin', (req, res) => {
         const email = req.body.email;
