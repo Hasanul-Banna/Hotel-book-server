@@ -80,6 +80,23 @@ client.connect(err => {
             .then(result => {
                 res.send(result.insertedCount > 0);
             })
+    });
+    app.delete('/delete/:id', (req, res) => {
+        const id = req.params.id;
+        roomsCollection.deleteOne({ id })
+            .then(result => {
+                res.send(result.deletedCount > 0);
+            })
+    });
+    app.patch('/update/:id', (req, res) => {
+        const id = req.params.id;
+        roomsCollection.updateOne({ id },
+            {
+                $set: { price: req.body.price }
+            })
+            .then(result => {
+                res.send(result.modifiedCount > 0)
+            })
     })
 });
 
