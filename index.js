@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const fileUpload = require('express-fileupload');
+const fetch = require("node-fetch");
 const MongoClient = require('mongodb').MongoClient;
 require('dotenv').config()
 
@@ -11,10 +12,7 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(express.static('Rooms'));
 app.use(fileUpload());
-// app.all('*', (req, res, next) => {
-//     res.header("Access-Control-Allow-Origin", "https://localhost:3000");
-//     next();
-// });
+
 const port = 5000;
 const uri = "mongodb+srv://Hasanul-Banna:NFOFHvx2U4wJMIwl@cluster0.jsi4a.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -99,11 +97,38 @@ client.connect(err => {
             })
     })
 });
+app.post('/subscribe', (req, res) => {
+    const { firstName, lastName, email } = req.body;
+    // Construct req data
+    const data = {
+        members: [
+            {
+                email_address: email,
+                status: 'subscribed',
+                merge_fields: {
+                    FNAME: firstName,
+                    LNAME: lastName
+                }
+            }
+        ]
+    };
 
+    const postData = JSON.stringify(data);
+
+    fetch('https://us1.api.mailchimp.com/3.0/lists/cfa44d70ea', {
+        method: 'POST',
+        headers: {
+            Authorization: 'auth efd36a1411a685aa82cfab75e4c2291b-us1'
+        },
+        body: postData
+    })
+        .then(res => console.log(res))
+        .catch(err => console.log(err))
+});
 
 
 app.get('/', (req, res) => {
-    res.send('Salam ayk');
+    res.send('Salam alyk');
 })
 
 app.listen(process.env.PORT || port)
